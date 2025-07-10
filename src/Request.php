@@ -2,6 +2,9 @@
 
 namespace AP\HttpClient;
 
+use AP\HttpClient\Exception\BadHeaderName;
+use AP\HttpClient\Exception\BadHeaderValue;
+use AP\Logger\Log;
 use CurlHandle;
 
 class Request
@@ -36,6 +39,41 @@ class Request
     {
         $this->setOption(CURLOPT_URL, $url);
         $this->setTimeout(30);
+    }
+
+    /**
+     * Safely adds an HTTP header after validating and sanitizing the name and value.
+     *
+     * Security protections:
+     * - Prevents CRLF injection by removing carriage returns and limiting to the first line.
+     * - Validates header name does not contain line breaks or control characters.
+     * - Rejects suspicious header values containing control characters (except tab).
+     *
+     * @param string $name The header name.
+     * @param string $value The header value.
+     *
+     * @throws BadHeaderName If the header name is empty or contains illegal characters.
+     * @throws BadHeaderValue If the header value contains illegal control characters.
+     *
+     * @return static Returns the current instance for method chaining.
+     */
+    public function addHeaderSafe(string $name, string $value): static
+    {
+        // Trim and validate the header name
+        $name = trim($name);
+        if ($name === '' || preg_match('/[\r\n]/', $name)) {
+            throw new BadHeaderName();
+        }
+
+        // Normalize value: remove carriage returns, then take the first line only
+        $value = explode("\n", str_replace("\r", '', $value))[0];
+
+        // Per RFC 7230 §3.2: Reject control characters in value, except horizontal tab (\x09)
+        if (preg_match('/[\x00-\x08\x0A-\x1F\x7F]/', $value)) {
+            throw new BadHeaderValue();
+        }
+
+        return $this->addHeader($name, $value);
     }
 
     public function addHeader(string $name, string $value): static
