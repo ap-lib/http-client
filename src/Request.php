@@ -52,10 +52,10 @@ class Request
      * @param string $name The header name.
      * @param string $value The header value.
      *
-     * @throws BadHeaderName If the header name is empty or contains illegal characters.
-     * @throws BadHeaderValue If the header value contains illegal control characters.
-     *
      * @return static Returns the current instance for method chaining.
+     *
+     * @throws BadHeaderValue If the header value contains illegal control characters.
+     * @throws BadHeaderName If the header name is empty or contains illegal characters.
      */
     public function addHeaderSafe(string $name, string $value): static
     {
