@@ -41,34 +41,41 @@ class Request
     }
 
     /**
-     * Safely adds an HTTP header after validating and sanitizing the name and value.
+     * Safely adds an HTTP header after validating the name and value.
      *
-     * Security protections:
-     * - Prevents CRLF injection by removing carriage returns and limiting to the first line.
-     * - Validates header name does not contain line breaks or control characters.
-     * - Rejects suspicious header values containing control characters (except tab).
+     * Security protections and compliance:
+     * - Enforces field-name syntax based on RFC 7230 §3.2.6 ("token" rule)
+     * - Rejects header names that are empty, too long, or contain invalid characters
+     * - Rejects header values containing control characters (except horizontal tab)
+     * - Enforces practical length limits on header name (≤ 256 bytes) and value (≤ 4096 bytes)
      *
-     * @param string $name The header name.
-     * @param string $value The header value.
+     * @param string $name The header name. Must conform to RFC 7230 token rules.
+     * @param string $value The header value. Must not contain disallowed control characters.
      *
      * @return static Returns the current instance for method chaining.
      *
-     * @throws BadHeaderValue If the header value contains illegal control characters.
-     * @throws BadHeaderName If the header name is empty or contains illegal characters.
+     * @throws BadHeaderName If the header name is empty, too long, or invalid.
+     * @throws BadHeaderValue If the header value is too long or contains control characters.
      */
     public function addHeaderSafe(string $name, string $value): static
     {
-        // Trim and validate the header name
         $name = trim($name);
-        if ($name === '' || preg_match('/[\r\n]/', $name)) {
+
+        // Enforce token characters (RFC 7230 §3.2.6) and practical length limit
+        if (
+            $name === ''
+            || strlen($name) > 256
+            || !preg_match('/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $name)
+        ) {
             throw new BadHeaderName();
         }
 
-        // Normalize value: remove carriage returns, then take the first line only
-        $value = explode("\n", str_replace("\r", '', $value))[0];
-
-        // Per RFC 7230 §3.2: Reject control characters in value, except horizontal tab (\x09)
-        if (preg_match('/[\x00-\x08\x0A-\x1F\x7F]/', $value)) {
+        // Enforce control character and length restrictions on value (RFC 7230 §3.2)
+        // Allows horizontal tab (\x09), rejects others: NULL, newline, carriage return, etc.
+        if (
+            preg_match('/[\x00-\x08\x0A-\x1F\x7F]/', $value)
+            || strlen($value) > 4096
+        ) {
             throw new BadHeaderValue();
         }
 
