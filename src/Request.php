@@ -4,7 +4,6 @@ namespace AP\HttpClient;
 
 use AP\HttpClient\Exception\BadHeaderName;
 use AP\HttpClient\Exception\BadHeaderValue;
-use AP\Logger\Log;
 use CurlHandle;
 
 class Request
