@@ -5,11 +5,12 @@ namespace AP\HttpClient;
 use AP\HttpClient\Exception\BadHeaderName;
 use AP\HttpClient\Exception\BadHeaderValue;
 use CurlHandle;
+use RuntimeException;
 
 class Request
 {
-    protected bool        $started       = false;
-    protected bool        $finished      = false;
+    protected ?float      $started_at    = null;
+    protected ?float      $finished_at   = null;
     protected ?CurlHandle $ch            = null;
     protected ?string     $asyncName     = null;
     protected ?string     $response_head = "";
@@ -410,12 +411,12 @@ class Request
      */
     public function triggerStarted(?string $asyncName = null): self
     {
-        if ($this->started) {
+        if (is_float($this->started_at)) {
             throw new Exception\DuplicateStart();
         }
 
-        $this->started   = true;
-        $this->asyncName = $asyncName;
+        $this->started_at = microtime(true);
+        $this->asyncName  = $asyncName;
 
         return $this;
     }
@@ -426,9 +427,9 @@ class Request
      */
     public function triggerFinished(float $waitTimeSeconds, ?int $curlErrno = null): self
     {
-        if (!$this->started) {
+        if (is_null($this->started_at)) {
             throw new Exception\NoStart();
-        } elseif ($this->finished) {
+        } elseif (is_float($this->finished_at)) {
             throw new Exception\DuplicateFinish(
                 implode(" :: ", [
                     "dup triggerFinished: " . $this->getAsyncName(),
@@ -439,9 +440,9 @@ class Request
             );
         }
 
-        $this->asyncErrno = $curlErrno;
-        $this->finished   = true;
-        $this->waitTime   = $waitTimeSeconds;
+        $this->asyncErrno  = $curlErrno;
+        $this->finished_at = microtime(true);
+        $this->waitTime    = $waitTimeSeconds;
 
         return $this;
     }
@@ -471,7 +472,27 @@ class Request
 
     public function isFinished(): bool
     {
-        return $this->finished;
+        return is_float($this->finished_at);
+    }
+
+    /**
+     * @return float microtime point
+     */
+    public function getStartedAt(): float
+    {
+        return is_float($this->started_at)
+            ? $this->started_at
+            : throw new RuntimeException('no started');
+    }
+
+    /**
+     * @return float microtime point
+     */
+    public function getFinishedAt(): float
+    {
+        return is_float($this->finished_at)
+            ? $this->finished_at
+            : throw new RuntimeException('no finished');
     }
 
     /**
