@@ -6,6 +6,8 @@ readonly class Log
 {
     public function __construct(
         public ?string   $url,
+        public ?float    $started_at,
+        public ?float    $finished_at,
         public float|int $runtime,
         public float|int $wait_time,
         public int       $response_code,

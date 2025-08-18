@@ -5,7 +5,6 @@ namespace AP\HttpClient;
 use AP\HttpClient\Exception\BadHeaderName;
 use AP\HttpClient\Exception\BadHeaderValue;
 use CurlHandle;
-use RuntimeException;
 
 class Request
 {
@@ -346,6 +345,8 @@ class Request
     {
         return new Log(
             url: $this->options[CURLOPT_URL] ?? null,
+            started_at: $this->started_at,
+            finished_at: $this->finished_at,
             runtime: $this->getRuntime(),
             wait_time: $this->getWaitTime(),
             response_code: $this->getResponseHttpCode(),
@@ -475,24 +476,14 @@ class Request
         return is_float($this->finished_at);
     }
 
-    /**
-     * @return float microtime point
-     */
-    public function getStartedAt(): float
+    public function getStartedAt(): ?float
     {
-        return is_float($this->started_at)
-            ? $this->started_at
-            : throw new RuntimeException('no started');
+        return $this->started_at;
     }
 
-    /**
-     * @return float microtime point
-     */
-    public function getFinishedAt(): float
+    public function getFinishedAt(): ?float
     {
-        return is_float($this->finished_at)
-            ? $this->finished_at
-            : throw new RuntimeException('no finished');
+        return $this->finished_at;
     }
 
     /**
