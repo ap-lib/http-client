@@ -88,6 +88,11 @@ class Request implements RequestDataInterface
         return $this;
     }
 
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
     public function authorizationBearer(string $token): static
     {
         return $this->addHeader(
