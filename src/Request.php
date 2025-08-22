@@ -6,7 +6,7 @@ use AP\HttpClient\Exception\BadHeaderName;
 use AP\HttpClient\Exception\BadHeaderValue;
 use CurlHandle;
 
-class Request
+class Request implements RequestDataInterface
 {
     protected ?float      $started_at    = null;
     protected ?float      $finished_at   = null;
@@ -250,9 +250,9 @@ class Request
             curl_errno($this->ch);
     }
 
-    public function getRuntime()
+    public function getRuntime(): float
     {
-        return curl_getinfo($this->ch, CURLINFO_TOTAL_TIME);
+        return (float)curl_getinfo($this->ch, CURLINFO_TOTAL_TIME);
     }
 
     public function getResponseHttpCode(): int
