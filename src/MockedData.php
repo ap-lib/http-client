@@ -5,8 +5,11 @@ namespace AP\HttpClient;
 class MockedData implements RequestDataInterface
 {
     public function __construct(
-        public ?string $requestHead = "HTTP/1.1 200 OK",
-        public ?string $requestBody = "",
+
+        public string  $responseHead = "HTTP/1.1 200 OK",
+        public string  $responseBody = "",
+        public string  $requestHead = "POST / HTTP/1.1",
+        public ?string $requestBody = null,
         public int     $responseHttpCode = 200,
         public float   $runtime = 1.0,
         public int     $errorNumber = 0,
@@ -52,17 +55,17 @@ class MockedData implements RequestDataInterface
 
     public function getRequestHead(): string
     {
-        return $this->requestHead ?? '';
+        return $this->requestHead;
     }
 
     public function getResponseHead(): string
     {
-        return $this->requestHead ?? '';
+        return $this->responseHead;
     }
 
     public function getResponseBoby(): string
     {
-        return $this->requestBody ?? '';
+        return $this->responseBody;
     }
 
     public function getResponseBodyJSONDecode(): mixed
