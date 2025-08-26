@@ -315,11 +315,12 @@ class Request implements RequestDataInterface
     /**
      * @throws Exception\CurlHandleType
      */
-    public function getResponseBodyJSONDecode(): mixed
+    public function getResponseBodyJSONDecode(bool $throwOnError = false): mixed
     {
         return json_decode(
             $this->getResponseBoby(),
-            true
+            true,
+            flags: $throwOnError ? JSON_THROW_ON_ERROR : 0
         );
     }
 
