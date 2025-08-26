@@ -22,7 +22,7 @@ interface RequestDataInterface
 
     public function getResponseBoby(): string;
 
-    public function getResponseBodyJSONDecode(): mixed;
+    public function getResponseBodyJSONDecode(bool $throwOnError = false): mixed;
 
     public function getURL(): ?string;
 

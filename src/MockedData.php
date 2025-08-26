@@ -68,7 +68,7 @@ class MockedData implements RequestDataInterface
         return $this->responseBody;
     }
 
-    public function getResponseBodyJSONDecode(): mixed
+    public function getResponseBodyJSONDecode(bool $throwOnError = false): mixed
     {
         return json_decode($this->responseBody ?? '', true);
     }
