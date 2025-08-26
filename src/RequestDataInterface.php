@@ -2,6 +2,8 @@
 
 namespace AP\HttpClient;
 
+use JsonException;
+
 interface RequestDataInterface
 {
     public function getFullInfo();
@@ -22,6 +24,9 @@ interface RequestDataInterface
 
     public function getResponseBoby(): string;
 
+    /**
+     * @throws JsonException
+     */
     public function getResponseBodyJSONDecode(bool $throwOnError = false): mixed;
 
     public function getURL(): ?string;
