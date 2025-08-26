@@ -70,7 +70,11 @@ class MockedData implements RequestDataInterface
 
     public function getResponseBodyJSONDecode(bool $throwOnError = false): mixed
     {
-        return json_decode($this->responseBody ?? '', true);
+        return json_decode(
+            $this->responseBody ?? '',
+            true,
+            flags: $throwOnError ? JSON_THROW_ON_ERROR : 0
+        );
     }
 
     public function getURL(): ?string
